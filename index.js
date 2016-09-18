@@ -132,7 +132,7 @@ class Hs100Accessory {
   }
 
   configure (sysInfo) {
-    this.log('Configuring: %s', this.accessory.displayName);
+    this.log('Configuring now: %s', this.accessory.displayName);
 
     sysInfo = sysInfo ? Promise.resolve(sysInfo) : this.hs100api.getSysInfo();
 
@@ -144,6 +144,7 @@ class Hs100Accessory {
       const outletService = pa.getService(Service.Outlet);
       outletService.getCharacteristic(Characteristic.On)
         .on('get', (callback) => {
+          this.log('Running status command for %s', this.accessory.displayName);
           this.hs100api.getSysInfo().then((si) => {
             this.refresh(si);
             callback(null, si.relay_state === 1);
@@ -152,6 +153,7 @@ class Hs100Accessory {
           });
         })
         .on('set', (value, callback) => {
+          this.log('Running set for %s -> %s', this.accessory.displayName, value);
           this.hs100api.setPowerState(value).then(() => {
             callback();
           }, (reason) => {
@@ -161,6 +163,7 @@ class Hs100Accessory {
 
       outletService.getCharacteristic(Characteristic.OutletInUse)
         .on('get', (callback) => {
+          this.log('Running in use command for %s', this.accessory.displayName);
           this.hs100api.getSysInfo().then((si) => {
             this.refresh(si);
             callback(null, si.relay_state === 1);
